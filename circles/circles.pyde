@@ -13,7 +13,7 @@ def setup():
 
     index = 0
     direction = "E"
-    table = loadTable("../data-20000-rekordow.csv", "header")
+    table = loadTable("../data/200.csv", "header")
     
     old_position = {}
     old_position["y"] = 20
