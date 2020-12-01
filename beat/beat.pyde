@@ -11,36 +11,36 @@ def snowflake(entries, x, y):
         
         if entry / 5 > 0.2:
             snowflake(len(entries) * [entry / 5], new_x, new_y)
-            
-class Second:
-    def __init__(self, id):
-        self.id = id
-        self.entries = {}
-        
-    def add_entry(self, time, strength):
-        self.entries[time] = strength
-            
-    def draw(self, x, y):
-        snowflake(self.entries.values(), x, y)
+
+def blob(entry, x, y):
+    circle(x, y, entry["strength"] * randint(10, 100))
       
 def setup():
     global index
+    global table
     global alpha
-    global seconds
+    global items
+    global fade_out
     
     seconds = []
     table = loadTable("../data/200.csv", "header")
+    items = []
+    fade_out = []
     
+    bpm = 0
     for row in table.rows():
-        time = float(row.getString("czas").replace(",", "."))
-        second = next((x for x in seconds if x.id == int(time)), None)
-        if second:
-            second.add_entry(time, float(row.getString("sila").replace(",", ".")))
-        else:
-            second = Second(int(time))
-            second.add_entry(time, float(row.getString("sila").replace(",", ".")))
-            seconds.append(second)
-                
+        if row.getString("bpm"):
+            bpm = float(row.getString("bpm").replace(",", "."))
+            
+        if bpm != 0:
+            item = {
+                "strength": float(row.getString("sila").replace(",", ".")),
+                "bpm": bpm,
+                "time": float(row.getString("czas").replace(",", "."))
+            }
+        
+            items.append(item)
+               
     size(1440, 810)
     frameRate(60)
     background(255, 255, 255)
@@ -50,22 +50,31 @@ def setup():
 
 def draw():
     global index
-    global table
     global alpha
-    global seconds
+    global items
+    global fade_out
     
-    background(255, 255, 255)
-    stroke(0, 0, 0, alpha)
+    # background(255, 255, 255)
+    fill(255,255,255,0)
     
-    x = width / 2
     y = height / 2
     
-    seconds[index].draw(x, y)
-    
-    alpha += 8 
-    if alpha > 255:
-        index += 1
+    for i, item in enumerate(fade_out):
+        stroke((255 / 5) * (5 - i), (255 / 5) * (5 - i), (255 / 5) * (5 - i))
         
-        if index >= len(seconds):
-            index = 0
-        alpha = 0
+        # stroke(255, 255, 255)
+        x = (index - (4 - i)) * width / len(items) 
+        blob(item, x, y)
+        
+    if len(fade_out) == 5:
+        fade_out.pop()
+    
+    stroke(0, 0, 0)
+    x = index * width / len(items)     
+    blob(items[index], x, y)
+    fade_out.append(items[index])
+    
+    index += 1
+    
+    if index >= len(items):
+        index = 0
