@@ -13,19 +13,21 @@ def snowflake(entries, x, y):
             snowflake(len(entries) * [entry / 5], new_x, new_y)
 
 def blob(entry, x, y):
-    circle(x, y, entry["strength"] * randint(10, 100))
+    circle(x, y, entry["strength"] * 10)
       
 def setup():
     global index
     global table
-    global alpha
     global items
-    global fade_out
+    global step
+    global rows
+    global row_index
+    global items_per_row
+    global offset
     
     seconds = []
-    table = loadTable("../data/200.csv", "header")
+    table = loadTable("../data/20000.csv", "header")
     items = []
-    fade_out = []
     
     bpm = 0
     for row in table.rows():
@@ -42,39 +44,45 @@ def setup():
             items.append(item)
                
     size(1440, 810)
-    frameRate(60)
-    background(255, 255, 255)
+    frameRate(144)
+    background(0, 0, 0)
     
-    index = 0
-    alpha = 0
+    index = 1
+    step  = 3
+    rows = 20
+    row_index = 0
+    offset = height / 10
+    
+    items_per_row = width / step
+    fill(255,255,255,10)
 
 def draw():
     global index
-    global alpha
     global items
-    global fade_out
+    global step
+    global rows
+    global row_index
+    global items_per_row
+    global offset
     
     # background(255, 255, 255)
-    fill(255,255,255,0)
+    stroke(0,0,0,0)
     
-    y = height / 2
+    if (step * (index - row_index * items_per_row) - step / 2) >= width:
+        row_index += 1 
     
-    for i, item in enumerate(fade_out):
-        stroke((255 / 5) * (5 - i), (255 / 5) * (5 - i), (255 / 5) * (5 - i))
+    # if (offset + (row_index * height / rows)) >= height:
+    #     fill(200,100,100,100)
         
-        # stroke(255, 255, 255)
-        x = (index - (4 - i)) * width / len(items) 
-        blob(item, x, y)
-        
-    if len(fade_out) == 5:
-        fade_out.pop()
+    x = step * (index - row_index * items_per_row) - step / 2
+    y = offset + (row_index % rows * height / rows)
     
-    stroke(0, 0, 0)
-    x = index * width / len(items)     
-    blob(items[index], x, y)
-    fade_out.append(items[index])
+    # print(step, index, row_index, items_per_row, x,y)
+    
+    blob(items[index - 1], x, y)
     
     index += 1
     
     if index >= len(items):
-        index = 0
+        noLoop()
+        # index = 0
