@@ -2,6 +2,30 @@ from random import seed
 from random import randint
 from math import pi
 
+# screen saver
+# R_RATIO = 100
+# ALPHA = 50
+# ROW_COUNT = 6
+# STEP = 30
+# OFFSET_Y = 30
+# ENDLESS = True
+
+# space
+# R_RATIO = 1
+# ALPHA = 50
+# ROW_COUNT = 20
+# STEP = 3
+# OFFSET_Y = 30
+# ENDLESS = False
+
+# zebra
+R_RATIO = 10
+ALPHA = 255
+ROW_COUNT = 20
+STEP = 3
+OFFSET_Y = 30
+ENDLESS = False
+
 def snowflake(entries, x, y):
     for i, entry in enumerate(entries):
         angle = i * 2 * pi / len(entries)
@@ -13,17 +37,18 @@ def snowflake(entries, x, y):
             snowflake(len(entries) * [entry / 5], new_x, new_y)
 
 def blob(entry, x, y):
-    circle(x, y, entry["strength"] * 10)
+    fill(255 - entry["strength"] * R_RATIO, 255 - entry["strength"] * R_RATIO,255 - entry["strength"] * R_RATIO,ALPHA)
+    stroke(0,0,0,0)
+    circle(x, y, entry["strength"] * R_RATIO)
+    # fill(0,0,0,0)
+    # stroke(0,255,0,10)
+    # line(width / 2, height / 2, x, y)
       
 def setup():
     global index
     global table
     global items
-    global step
-    global rows
     global row_index
-    global items_per_row
-    global offset
     
     seconds = []
     table = loadTable("../data/20000.csv", "header")
@@ -42,46 +67,35 @@ def setup():
             }
         
             items.append(item)
-               
+            
+    stroke(0,0,0,0)
     size(1440, 810)
     frameRate(144)
     background(0, 0, 0)
     
     index = 1
-    step  = 3
-    rows = 20
     row_index = 0
-    offset = height / 10
-    
-    items_per_row = width / step
-    fill(255,255,255,10)
 
 def draw():
     global index
     global items
-    global step
-    global rows
     global row_index
-    global items_per_row
-    global offset
     
-    # background(255, 255, 255)
-    stroke(0,0,0,0)
+    items_per_row = width / STEP
     
-    if (step * (index - row_index * items_per_row) - step / 2) >= width:
+    if (STEP * (index - row_index * items_per_row)) >= width:
         row_index += 1 
     
-    # if (offset + (row_index * height / rows)) >= height:
-    #     fill(200,100,100,100)
+    x = (STEP * (index - row_index * items_per_row))
+    y = (row_index % ROW_COUNT * height / ROW_COUNT) + OFFSET_Y
         
-    x = step * (index - row_index * items_per_row) - step / 2
-    y = offset + (row_index % rows * height / rows)
-    
-    # print(step, index, row_index, items_per_row, x,y)
-    
     blob(items[index - 1], x, y)
     
     index += 1
+    
+    print(row_index, ROW_COUNT)
+    if not ENDLESS and row_index > ROW_COUNT:
+        noLoop()
     
     if index >= len(items):
         noLoop()
